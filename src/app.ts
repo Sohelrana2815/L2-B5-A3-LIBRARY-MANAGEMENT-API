@@ -80,6 +80,7 @@ app.get("/api/books/:bookId", async (req: Request, res: Response) => {
   });
 });
 
+// UPDATE A SINGLE BOOK
 app.put("/api/books/:bookId", async (req: Request, res: Response) => {
   const bookId = req.params.bookId;
   const bookToUpdate = req.body;
@@ -91,6 +92,17 @@ app.put("/api/books/:bookId", async (req: Request, res: Response) => {
     success: true,
     message: "Book updated successfully",
     data: updatedBook,
+  });
+});
+
+app.delete("/api/books/:bookId", async (req: Request, res: Response) => {
+  const bookId = req.params.bookId;
+
+  await Book.findByIdAndDelete(bookId);
+  res.status(200).json({
+    success: true,
+    message: "Book deleted successfully",
+    data: null,
   });
 });
 
