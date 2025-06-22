@@ -15,16 +15,33 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.booksRoutes = void 0;
 const express_1 = __importDefault(require("express"));
 const books_model_1 = require("../models/books.model");
+const zod_1 = require("zod");
 exports.booksRoutes = express_1.default.Router();
+const bookZodSchema = zod_1.z.object({
+    title: zod_1.z.string().min(10),
+    author: zod_1.z.string().min(5),
+    genre: zod_1.z.enum([
+        "FICTION",
+        "NON_FICTION",
+        "SCIENCE",
+        "HISTORY",
+        "BIOGRAPHY",
+        "FANTASY",
+    ]),
+    isbn: zod_1.z.string(),
+    description: zod_1.z.string().optional(),
+    copies: zod_1.z.number().int().nonnegative(),
+    available: zod_1.z.boolean(),
+});
 // CREATE A BOOK
 exports.booksRoutes.post("/books", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const bookPayload = req.body;
-    console.log(bookPayload);
-    const book = yield books_model_1.Book.create(bookPayload);
+    const bookPayload = yield bookZodSchema.parseAsync(req.body);
+    console.log(bookPayload, "zod body");
+    // const book = await Book.create(bookPayload);
     res.status(201).json({
         success: true,
         message: "Book created successfully",
-        data: book,
+        data: {},
     });
 }));
 // GET ALL BOOKS
