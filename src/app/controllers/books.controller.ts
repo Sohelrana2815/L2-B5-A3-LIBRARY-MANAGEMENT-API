@@ -1,19 +1,38 @@
 import express, { Request, Response } from "express";
 import { Book } from "../models/books.model";
+import { z } from "zod";
 
 export const booksRoutes = express.Router();
 
+const bookZodSchema = z.object({
+  title: z.string().min(10),
+  author: z.string().min(5),
+  genre: z.enum([
+    "FICTION",
+    "NON_FICTION",
+    "SCIENCE",
+    "HISTORY",
+    "BIOGRAPHY",
+    "FANTASY",
+  ]),
+
+  isbn: z.string(),
+  description: z.string().optional(),
+  copies: z.number().int().nonnegative(),
+  available: z.boolean(),
+});
+
 // CREATE A BOOK
 booksRoutes.post("/books", async (req: Request, res: Response) => {
-  const bookPayload = req.body;
-  console.log(bookPayload);
+  const bookPayload = await bookZodSchema.parseAsync(req.body);
+  console.log(bookPayload, "zod body");
 
-  const book = await Book.create(bookPayload);
+  // const book = await Book.create(bookPayload);
 
   res.status(201).json({
     success: true,
     message: "Book created successfully",
-    data: book,
+    data: {},
   });
 });
 
