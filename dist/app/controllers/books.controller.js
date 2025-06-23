@@ -16,6 +16,7 @@ exports.booksRoutes = void 0;
 const express_1 = __importDefault(require("express"));
 const books_model_1 = require("../models/books.model");
 const zod_1 = require("zod");
+const ApiError_1 = require("../../utils/ApiError");
 exports.booksRoutes = express_1.default.Router();
 const bookZodSchema = zod_1.z.object({
     title: zod_1.z.string().min(10),
@@ -34,54 +35,90 @@ const bookZodSchema = zod_1.z.object({
     available: zod_1.z.boolean(),
 });
 // CREATE A BOOK
-exports.booksRoutes.post("/books", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const bookPayload = yield bookZodSchema.parseAsync(req.body);
-    console.log(bookPayload, "zod body");
-    // const book = await Book.create(bookPayload);
-    res.status(201).json({
-        success: true,
-        message: "Book created successfully",
-        data: {},
-    });
+exports.booksRoutes.post("/books", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        // Zod validation error if req.body is invalid data
+        const bookPayload = yield bookZodSchema.parseAsync(req.body);
+        console.log(bookPayload, "post");
+        const created = yield books_model_1.Book.create(bookPayload);
+        res.status(201).json({
+            success: true,
+            message: "Book created successfully",
+            data: created,
+        });
+    }
+    catch (err) {
+        next(err);
+    }
 }));
 // GET ALL BOOKS
-exports.booksRoutes.get("/books", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const books = yield books_model_1.Book.find({});
-    res.status(200).json({
-        success: true,
-        message: "Books retrieved successfully",
-        data: books,
-    });
+exports.booksRoutes.get("/books", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const books = yield books_model_1.Book.find({});
+        res.status(200).json({
+            success: true,
+            message: "Books retrieved successfully",
+            data: books,
+        });
+    }
+    catch (err) {
+        next(err);
+    }
 }));
 // GET SINGLE BOOK (BY ID)
-exports.booksRoutes.get("/books/:bookId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const bookId = req.params.bookId;
-    const book = yield books_model_1.Book.findById(bookId);
-    res.status(200).json({
-        success: true,
-        message: "Book retrieved successfully",
-        data: book,
-    });
+exports.booksRoutes.get("/books/:bookId", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const book = yield books_model_1.Book.findById(req.params.bookId);
+        if (!book) {
+            // throw 404 error from ApiError
+            throw new ApiError_1.ApiError(404, "Book not found");
+        }
+        res.status(200).json({
+            success: true,
+            message: "Book retrieved successfully",
+            data: book,
+        });
+    }
+    catch (err) {
+        next(err);
+    }
 }));
 // UPDATE A SINGLE BOOK
-exports.booksRoutes.put("/books/:bookId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.booksRoutes.put("/books/:bookId", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const bookId = req.params.bookId;
-    const bookToUpdate = req.body;
-    const updatedBook = yield books_model_1.Book.findByIdAndUpdate(bookId, bookToUpdate, {
-        new: true,
-    });
-    res.status(200).json({
-        success: true,
-        message: "Book updated successfully",
-        data: updatedBook,
-    });
+    try {
+        // Zod validation
+        const bookPayload = yield bookZodSchema.partial().parseAsync(req.body);
+        const updated = yield books_model_1.Book.findByIdAndUpdate(bookId, bookPayload, {
+            new: true,
+            runValidators: true,
+        });
+        if (!updated)
+            throw new ApiError_1.ApiError(404, "Book not found");
+        res.status(200).json({
+            success: true,
+            message: "Book updated successfully",
+            data: updated,
+        });
+    }
+    catch (err) {
+        next(err);
+    }
 }));
-exports.booksRoutes.delete("/books/:bookId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// DELETE A BOOK
+exports.booksRoutes.delete("/books/:bookId", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const bookId = req.params.bookId;
-    yield books_model_1.Book.findByIdAndDelete(bookId);
-    res.status(200).json({
-        success: true,
-        message: "Book deleted successfully",
-        data: null,
-    });
+    try {
+        const deleted = yield books_model_1.Book.findByIdAndDelete(bookId);
+        if (!deleted)
+            throw new ApiError_1.ApiError(404, "Book not found");
+        res.status(200).json({
+            success: true,
+            message: "Book deleted successfully",
+            data: null,
+        });
+    }
+    catch (err) {
+        next(err);
+    }
 }));
