@@ -31,7 +31,7 @@ const bookZodSchema = zod_1.z.object({
     ]),
     isbn: zod_1.z.string(),
     description: zod_1.z.string().optional(),
-    copies: zod_1.z.number().int().nonnegative().min(1),
+    copies: zod_1.z.number().min(1).int().nonnegative(),
     available: zod_1.z.boolean(),
 });
 // CREATE A BOOK
