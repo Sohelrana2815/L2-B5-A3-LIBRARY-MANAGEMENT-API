@@ -76,6 +76,8 @@ booksRoutes.put("/books/:bookId", async (req: Request, res: Response) => {
   });
 });
 
+// DELETE A BOOK
+
 booksRoutes.delete("/books/:bookId", async (req: Request, res: Response) => {
   const bookId = req.params.bookId;
 
