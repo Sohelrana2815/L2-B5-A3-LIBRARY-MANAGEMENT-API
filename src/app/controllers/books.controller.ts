@@ -19,7 +19,7 @@ const bookZodSchema = z.object({
 
   isbn: z.string(),
   description: z.string().optional(),
-  copies: z.number().int().nonnegative().min(1),
+  copies: z.number().min(1).int().nonnegative(),
   available: z.boolean(),
 });
 

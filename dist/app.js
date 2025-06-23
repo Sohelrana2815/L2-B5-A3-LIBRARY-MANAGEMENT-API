@@ -10,7 +10,7 @@ const errorHandler_1 = require("./middleware/errorHandler");
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use("/api", books_controller_1.booksRoutes);
-app.get("/", (req, res) => {
+app.get("/", (_, res) => {
     res.send("Welcome to library management app📚.");
 });
 // 404 for unmatched routes

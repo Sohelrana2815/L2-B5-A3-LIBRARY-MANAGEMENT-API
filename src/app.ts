@@ -9,7 +9,7 @@ app.use(express.json());
 
 app.use("/api", booksRoutes);
 
-app.get("/", (req: Request, res: Response) => {
+app.get("/", (_, res) => {
   res.send("Welcome to library management app📚.");
 });
 
