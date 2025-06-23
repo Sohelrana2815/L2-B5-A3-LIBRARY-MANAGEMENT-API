@@ -3,8 +3,39 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.errorHandler = void 0;
 const mongoose_1 = require("mongoose");
 const ApiError_1 = require("../utils/ApiError");
+const zod_1 = require("zod");
 const errorHandler = (err, req, res, next) => {
     var _a;
+    if (err instanceof zod_1.ZodError) {
+        res.status(400).json({
+            message: "Validation failed",
+            success: false,
+            error: {
+                name: err.name, // "ZodError"
+                errors: err.errors, // ZodIssue[]
+            },
+        });
+        return;
+    }
+    if (err instanceof mongoose_1.Error.CastError) {
+        res.status(400).json({
+            message: "Validation failed",
+            success: false,
+            error: {
+                name: err.name,
+                errors: {
+                    [err.path]: {
+                        message: err.message,
+                        name: err.name,
+                        kind: err.kind,
+                        path: err.path,
+                        value: err.value,
+                    },
+                },
+            },
+        });
+        return;
+    }
     // Mongoose ValidationError
     if (err instanceof mongoose_1.Error.ValidationError) {
         res.status(400).json({
