@@ -1,4 +1,4 @@
-import { model, Schema } from "mongoose";
+import { Document, model, Schema } from "mongoose";
 import { IBooks } from "../interfaces/books.interface";
 
 const bookSchema = new Schema<IBooks>(
@@ -62,4 +62,22 @@ const bookSchema = new Schema<IBooks>(
   }
 );
 
-export const Book = model<IBooks>("Book", bookSchema);
+bookSchema.methods.borrowCopies = async function (
+  this: Document & { copies: number; available: boolean },
+  qty: number
+) {
+  if (this.copies < qty) {
+    throw new Error("Not enough copies available");
+  }
+
+  this.copies -= qty;
+
+  if (this.copies === 0) {
+    this.available = false;
+  }
+  await this.save();
+};
+
+export const Book = model<
+  IBooks & Document & { borrowCopies(qty: number): Promise<void> }
+>("Book", bookSchema);
