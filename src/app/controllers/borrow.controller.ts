@@ -2,6 +2,8 @@ import express, { NextFunction, Request, Response } from "express";
 import { z } from "zod";
 import { Book } from "../models/books.model";
 import { ApiError } from "../../utils/ApiError";
+import { IBooks } from "../interfaces/books.interface";
+import { Borrow } from "../models/borrow.model";
 
 export const borrowRoutes = express.Router();
 
@@ -27,16 +29,43 @@ borrowRoutes.post(
       const borrowPayload = await borrowZodSchema.parseAsync(req.body);
 
       // Find the book
-
-      const book = await Book.findById(borrowPayload.book); // book has Book model _id
+      const book = await Book.findById(borrowPayload.book);
 
       if (!book) {
         throw new ApiError(404, "Book not found");
       }
 
-   
+      // Check available copies
 
+      if (book.copies < borrowPayload.quantity) {
+        throw new ApiError(
+          400,
+          `Only ${book.copies} copies available, requested ${borrowPayload.quantity}`
+        );
+      }
 
-    } catch (err) {}
+      // Deduct copies - the pre-save hook will handle availability
+
+      book.copies -= borrowPayload.quantity;
+      await book.save();
+
+      // Create borrow record
+
+      const borrow = new Borrow({
+        book: borrowPayload.book,
+        quantity: borrowPayload.quantity,
+        dueDate: new Date(borrowPayload.dueDate),
+      });
+
+      const created = await borrow.save();
+
+      res.status(201).json({
+        success: true,
+        message: "Book borrowed successfully",
+        data: created,
+      });
+    } catch (err) {
+      next(err);
+    }
   }
 );

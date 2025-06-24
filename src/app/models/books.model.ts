@@ -1,4 +1,4 @@
-import { Document, model, Schema } from "mongoose";
+import { model, Schema } from "mongoose";
 import { IBooks } from "../interfaces/books.interface";
 
 const bookSchema = new Schema<IBooks>(
@@ -45,7 +45,7 @@ const bookSchema = new Schema<IBooks>(
     copies: {
       type: Number,
       required: [true, "Number of copies is mandatory."],
-      min: [1, "Copies must be a non-negative number."],
+      min: [0, "Copies must be a non-negative number."],
       validate: {
         validator: Number.isInteger,
         message: "Copies must be an integer",
@@ -62,22 +62,12 @@ const bookSchema = new Schema<IBooks>(
   }
 );
 
-bookSchema.methods.borrowCopies = async function (
-  this: Document & { copies: number; available: boolean },
-  qty: number
-) {
-  if (this.copies < qty) {
-    throw new Error("Not enough copies available");
-  }
+// pre-save hook
 
-  this.copies -= qty;
+bookSchema.pre<IBooks>("save", function (next) {
+  // Automatically set available based on copies count
+  this.available = this.copies > 0; // 0 > 0 = false
+  next();
+});
 
-  if (this.copies === 0) {
-    this.available = false;
-  }
-  await this.save();
-};
-
-export const Book = model<
-  IBooks & Document & { borrowCopies(qty: number): Promise<void> }
->("Book", bookSchema);
+export const Book = model<IBooks>("Book", bookSchema);
