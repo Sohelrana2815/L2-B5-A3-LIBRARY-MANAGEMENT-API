@@ -2,7 +2,6 @@ import express, { NextFunction, Request, Response } from "express";
 import { z } from "zod";
 import { Book } from "../models/books.model";
 import { ApiError } from "../../utils/ApiError";
-import { IBooks } from "../interfaces/books.interface";
 import { Borrow } from "../models/borrow.model";
 
 export const borrowRoutes = express.Router();
@@ -63,6 +62,58 @@ borrowRoutes.post(
         success: true,
         message: "Book borrowed successfully",
         data: created,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+borrowRoutes.get(
+  "/borrow",
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const summery = await Borrow.aggregate([
+        // Stage-1: Group by ID and calculate total borrowed quantity
+        {
+          $group: {
+            _id: "$book",
+            totalQuantity: { $sum: "$quantity" },
+          },
+        },
+        // Stage-2 Join the borrows collection with books collection
+        {
+          $lookup: {
+            from: "books", // Collection name
+            localField: "_id", // Field form borrows collection (Book ObjectId)
+            foreignField: "_id", // Field from books collection _id
+            as: "bookDetails",
+          },
+        },
+
+        // Stage-3 unwind the bookDetails array (converts to object)
+        {
+          $unwind: "$bookDetails",
+        },
+
+        // Stage-4 Project only required fields
+
+        {
+          $project: {
+            _id: 0,
+            book: {
+              title: "$bookDetails.title",
+              isbn: "$bookDetails.isbn",
+            },
+            totalQuantity: 1,
+          },
+        },
+      ]);
+
+      res.status(200).json({
+        success: true,
+        message: "Borrowed books summary retrieved successfully",
+        data: summery,
       });
     } catch (err) {
       next(err);
