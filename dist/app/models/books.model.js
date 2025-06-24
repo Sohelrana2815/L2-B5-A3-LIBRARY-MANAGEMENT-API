@@ -42,7 +42,7 @@ const bookSchema = new mongoose_1.Schema({
     copies: {
         type: Number,
         required: [true, "Number of copies is mandatory."],
-        min: [1, "Copies must be a non-negative number."],
+        min: [0, "Copies must be a non-negative number."],
         validate: {
             validator: Number.isInteger,
             message: "Copies must be an integer",
@@ -55,5 +55,11 @@ const bookSchema = new mongoose_1.Schema({
 }, {
     versionKey: false,
     timestamps: true,
+});
+// pre-save hook
+bookSchema.pre("save", function (next) {
+    // Automatically set available based on copies count
+    this.available = this.copies > 0; // 0 > 0 = false
+    next();
 });
 exports.Book = (0, mongoose_1.model)("Book", bookSchema);

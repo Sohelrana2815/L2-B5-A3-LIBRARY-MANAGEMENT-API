@@ -21,7 +21,7 @@ const PORT = process.env.PORT || 5000;
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            yield mongoose_1.default.connect(`mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.pns8cwr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`);
+            yield mongoose_1.default.connect(`mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.pns8cwr.mongodb.net/library_management_db?retryWrites=true&w=majority&appName=Cluster0`);
             console.log("Connect to MongoDB with Mongoose successfully✅");
             server = app_1.default.listen(PORT, () => __awaiter(this, void 0, void 0, function* () {
                 console.log(`Library management app is running🏃🏼‍♂️ on port ${PORT}`);

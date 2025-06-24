@@ -7,9 +7,11 @@ const express_1 = __importDefault(require("express"));
 const books_controller_1 = require("./app/controllers/books.controller");
 const notFoundHandler_1 = require("./middleware/notFoundHandler");
 const errorHandler_1 = require("./middleware/errorHandler");
+const borrow_controller_1 = require("./app/controllers/borrow.controller");
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use("/api", books_controller_1.booksRoutes);
+app.use("/api", borrow_controller_1.borrowRoutes);
 app.get("/", (_, res) => {
     res.send("Welcome to library management app📚.");
 });

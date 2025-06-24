@@ -89,12 +89,15 @@ exports.booksRoutes.put("/books/:bookId", (req, res, next) => __awaiter(void 0, 
     try {
         // Zod validation
         const bookPayload = yield bookZodSchema.partial().parseAsync(req.body);
-        const updated = yield books_model_1.Book.findByIdAndUpdate(bookId, bookPayload, {
-            new: true,
-            runValidators: true,
-        });
-        if (!updated)
+        // Find the book
+        const book = yield books_model_1.Book.findById(bookId);
+        if (!book) {
             throw new ApiError_1.ApiError(404, "Book not found");
+        }
+        // Update the book document with new values
+        Object.assign(book, bookPayload);
+        // Save the document - triggers pre-save hook for availability
+        const updated = yield book.save();
         res.status(200).json({
             success: true,
             message: "Book updated successfully",
