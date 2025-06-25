@@ -39,7 +39,7 @@ exports.booksRoutes.post("/books", (req, res, next) => __awaiter(void 0, void 0,
     try {
         // Zod validation error if req.body is invalid data
         const bookPayload = yield bookZodSchema.parseAsync(req.body);
-        console.log(bookPayload, "post");
+        // console.log(bookPayload, "post");
         const created = yield books_model_1.Book.create(bookPayload);
         res.status(201).json({
             success: true,
@@ -54,7 +54,29 @@ exports.booksRoutes.post("/books", (req, res, next) => __awaiter(void 0, void 0,
 // GET ALL BOOKS
 exports.booksRoutes.get("/books", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const books = yield books_model_1.Book.find({});
+        // Extract query parameters
+        const { filter, sortBy, sort, limit } = req.query;
+        // Build query object
+        const query = {};
+        if (filter && typeof filter === "string") {
+            query.genre = filter.toUpperCase();
+        }
+        // Build sort object
+        const sortOptions = {};
+        if (sortBy) {
+            const sortDirection = sort === "asc" ? 1 : -1;
+            sortOptions[sortBy] = sortDirection;
+        }
+        else {
+            // Default sorting by createdAt descending
+            sortOptions.createdAt = -1;
+        }
+        // Set limit with default of 10
+        const resultsLimit = limit ? parseInt(limit) : 10;
+        // Execute query
+        const books = yield books_model_1.Book.find(query)
+            .sort(sortOptions)
+            .limit(resultsLimit);
         res.status(200).json({
             success: true,
             message: "Books retrieved successfully",

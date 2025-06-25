@@ -30,7 +30,7 @@ booksRoutes.post(
     try {
       // Zod validation error if req.body is invalid data
       const bookPayload = await bookZodSchema.parseAsync(req.body);
-      console.log(bookPayload, "post");
+      // console.log(bookPayload, "post");
       const created = await Book.create(bookPayload);
 
       res.status(201).json({
@@ -50,7 +50,34 @@ booksRoutes.get(
   "/books",
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const books = await Book.find({});
+      // Extract query parameters
+
+      const { filter, sortBy, sort, limit } = req.query;
+      // Build query object
+      const query: any = {};
+
+      if (filter && typeof filter === "string") {
+        query.genre = filter.toUpperCase();
+      }
+      // Build sort object
+
+      const sortOptions: any = {};
+
+      if (sortBy) {
+        const sortDirection = sort === "asc" ? 1 : -1;
+        sortOptions[sortBy as string] = sortDirection;
+      } else {
+        // Default sorting by createdAt descending
+        sortOptions.createdAt = -1;
+      }
+
+      // Set limit with default of 10
+      const resultsLimit = limit ? parseInt(limit as string) : 10;
+      // Execute query
+      const books = await Book.find(query)
+        .sort(sortOptions)
+        .limit(resultsLimit);
+
       res.status(200).json({
         success: true,
         message: "Books retrieved successfully",
@@ -95,6 +122,7 @@ booksRoutes.put(
 
       // Find the book
       const book = await Book.findById(bookId);
+      
       if (!book) {
         throw new ApiError(404, "Book not found");
       }
