@@ -53,8 +53,8 @@ Make sure you have the following installed:
 1. **Clone the repository:** ⬇️
 
    ```bash
-   git clone https://github.com/SohelRana/library-management-api.git # Replace with your repo URL
-   cd library-management-api
+   git clone https://github.com/Sohelrana2815/L2-B5-A3-LIBRARY-MANAGEMENT-API.git
+   cd L2-B5-A3-LIBRARY-MANAGEMENT-API
    ```
 
 2. **Install dependencies:** 📦
