@@ -71,8 +71,8 @@ Make sure you have the following installed:
    Add the following content to your `.env` file:
 
    ```dotenv
-   DB_USERNAME=library_admin
-   DB_PASSWORD=XBhvHeAj0sU5yfj0
+   DB_USERNAME=<Your DB username>
+   DB_PASSWORD=<Your DB password>
    PORT=5000 # Optional, defaults to 5000 if not set
    ```
 
