@@ -76,7 +76,7 @@ Make sure you have the following installed:
    PORT=5000 # Optional, defaults to 5000 if not set
    ```
 
-   Replace `library_admin` and `XBhvHeAj0sU5yfj0` with your actual MongoDB Atlas database username and password if different.
+   Replace `<Your DB username>` and `<Your DB password>` with your actual MongoDB Atlas database username and password if different.
 
 4. **Run the development server:** ▶️
 
