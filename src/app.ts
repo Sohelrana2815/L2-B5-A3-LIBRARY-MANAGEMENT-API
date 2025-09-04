@@ -3,10 +3,11 @@ import { booksRoutes } from "./app/controllers/books.controller";
 import { notFoundHandler } from "./middleware/notFoundHandler";
 import { errorHandler } from "./middleware/errorHandler";
 import { borrowRoutes } from "./app/controllers/borrow.controller";
-
+import cors from "cors";
 const app: Application = express();
 
 app.use(express.json());
+app.use(cors({ origin: ["http://localhost:5173", "http://localhost:5174"] }));
 
 app.use("/api", booksRoutes);
 app.use("/api", borrowRoutes);

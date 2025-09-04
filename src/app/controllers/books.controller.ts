@@ -19,7 +19,7 @@ const bookZodSchema = z.object({
 
   isbn: z.string(),
   description: z.string().optional(),
-  copies: z.number().min(1).int().nonnegative(),
+  copies: z.number().min(0).int().nonnegative(),
   available: z.boolean(),
 });
 
@@ -54,7 +54,9 @@ booksRoutes.get(
 
       const { filter, sortBy, sort, limit } = req.query;
       // Build query object
-      const query: any = {};
+      const query: any = {
+        isDeleted: false,
+      };
 
       if (filter && typeof filter === "string") {
         query.genre = filter.toUpperCase();
@@ -122,7 +124,7 @@ booksRoutes.put(
 
       // Find the book
       const book = await Book.findById(bookId);
-      
+
       if (!book) {
         throw new ApiError(404, "Book not found");
       }
@@ -151,12 +153,46 @@ booksRoutes.delete(
     const bookId = req.params.bookId;
 
     try {
-      const deleted = await Book.findByIdAndDelete(bookId);
+      const deleted = await Book.findByIdAndUpdate(
+        bookId,
+        { isDeleted: true },
+        { new: true }
+      );
 
       if (!deleted) throw new ApiError(404, "Book not found");
       res.status(200).json({
         success: true,
         message: "Book deleted successfully",
+        data: null,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+// DELETE MULTIPLE BOOKS
+
+booksRoutes.delete(
+  "/books",
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { ids } = req.body;
+
+      if (!Array.isArray(ids) || ids.length === 0) {
+        throw new ApiError(
+          400,
+          "Please provide an array of book IDs to delete"
+        );
+      }
+      const result = await Book.updateMany(
+        { _id: { $in: ids } },
+        { isDeleted: true }
+      );
+
+      res.status(200).json({
+        success: true,
+        message: `${result.modifiedCount} book(s) deleted successfully`,
         data: null,
       });
     } catch (err) {
