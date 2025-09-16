@@ -69,6 +69,7 @@ exports.borrowRoutes.get("/borrow", (req, res, next) => __awaiter(void 0, void 0
                 $group: {
                     _id: "$book",
                     totalQuantity: { $sum: "$quantity" },
+                    dueDate: { $first: "$dueDate" },
                 },
             },
             // Stage-2 Join the borrows collection with books collection
@@ -92,6 +93,7 @@ exports.borrowRoutes.get("/borrow", (req, res, next) => __awaiter(void 0, void 0
                         title: "$bookDetails.title",
                         isbn: "$bookDetails.isbn",
                     },
+                    dueDate: 1,
                     totalQuantity: 1,
                 },
             },

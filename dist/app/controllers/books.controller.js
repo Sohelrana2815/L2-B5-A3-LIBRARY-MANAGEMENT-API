@@ -31,7 +31,7 @@ const bookZodSchema = zod_1.z.object({
     ]),
     isbn: zod_1.z.string(),
     description: zod_1.z.string().optional(),
-    copies: zod_1.z.number().min(1).int().nonnegative(),
+    copies: zod_1.z.number().min(0).int().nonnegative(),
     available: zod_1.z.boolean(),
 });
 // CREATE A BOOK
@@ -140,6 +140,24 @@ exports.booksRoutes.delete("/books/:bookId", (req, res, next) => __awaiter(void 
         res.status(200).json({
             success: true,
             message: "Book deleted successfully",
+            data: null,
+        });
+    }
+    catch (err) {
+        next(err);
+    }
+}));
+// DELETE MULTIPLE BOOKS
+exports.booksRoutes.delete("/books", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { ids } = req.body;
+        if (!Array.isArray(ids) || ids.length === 0) {
+            throw new ApiError_1.ApiError(400, "Please provide an array of book IDs to delete");
+        }
+        const result = yield books_model_1.Book.deleteMany({ _id: { $in: ids } });
+        res.status(200).json({
+            success: true,
+            message: `${result.deletedCount} book(s) deleted successfully`,
             data: null,
         });
     }
