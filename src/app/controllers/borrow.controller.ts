@@ -105,6 +105,7 @@ borrowRoutes.get(
               title: "$bookDetails.title",
               isbn: "$bookDetails.isbn",
             },
+            dueDate: 1,
             totalQuantity: 1,
           },
         },
