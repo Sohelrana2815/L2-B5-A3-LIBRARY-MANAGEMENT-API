@@ -55,10 +55,6 @@ const bookSchema = new Schema<IBooks>(
       type: Boolean,
       default: true,
     },
-    isDeleted: {
-      type: Boolean,
-      default: false,
-    },
   },
   {
     versionKey: false,

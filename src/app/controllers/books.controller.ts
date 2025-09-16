@@ -54,9 +54,7 @@ booksRoutes.get(
 
       const { filter, sortBy, sort, limit } = req.query;
       // Build query object
-      const query: any = {
-        isDeleted: false,
-      };
+      const query: any = {};
 
       if (filter && typeof filter === "string") {
         query.genre = filter.toUpperCase();
@@ -153,11 +151,7 @@ booksRoutes.delete(
     const bookId = req.params.bookId;
 
     try {
-      const deleted = await Book.findByIdAndUpdate(
-        bookId,
-        { isDeleted: true },
-        { new: true }
-      );
+      const deleted = await Book.findByIdAndDelete(bookId);
 
       if (!deleted) throw new ApiError(404, "Book not found");
       res.status(200).json({
@@ -185,14 +179,12 @@ booksRoutes.delete(
           "Please provide an array of book IDs to delete"
         );
       }
-      const result = await Book.updateMany(
-        { _id: { $in: ids } },
-        { isDeleted: true }
-      );
+
+      const result = await Book.deleteMany({ _id: { $in: ids } });
 
       res.status(200).json({
         success: true,
-        message: `${result.modifiedCount} book(s) deleted successfully`,
+        message: `${result.deletedCount} book(s) deleted successfully`,
         data: null,
       });
     } catch (err) {

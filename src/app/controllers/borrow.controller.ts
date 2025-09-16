@@ -27,12 +27,8 @@ borrowRoutes.post(
       // Validate request body
       const borrowPayload = await borrowZodSchema.parseAsync(req.body);
 
-      // Find the book but only if it is NOT soft-deleted
-      // const book = await Book.findById(borrowPayload.book);
-      const book = await Book.findOne({
-        _id: borrowPayload.book,
-        isDeleted: false,
-      });
+      // Find the book
+      const book = await Book.findById(borrowPayload.book);
 
       if (!book) {
         throw new ApiError(404, "Book not found");

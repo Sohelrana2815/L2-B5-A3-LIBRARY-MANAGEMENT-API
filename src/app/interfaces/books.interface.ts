@@ -15,7 +15,7 @@ export interface IBooks extends Document {
   description?: string;
   copies: number;
   available: boolean;
-  isDeleted: boolean;
+  
   createdAt?: Date;
   updatedAt?: Date;
 }
