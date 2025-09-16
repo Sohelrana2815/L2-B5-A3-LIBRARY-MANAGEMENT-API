@@ -12,7 +12,8 @@ app.use(
     origin: [
       "http://localhost:5173",
       "http://localhost:5174",
-      "https://library-management-api-flame.vercel.app/api",
+      "https://library-management-api-flame.vercel.app",
+      "http://aura-books-b9-a4-git-main-sohelranas-projects.vercel.app",
     ],
   })
 );
