@@ -79,6 +79,7 @@ borrowRoutes.get(
           $group: {
             _id: "$book",
             totalQuantity: { $sum: "$quantity" },
+            dueDate: { $first: "$dueDate" },
           },
         },
         // Stage-2 Join the borrows collection with books collection
